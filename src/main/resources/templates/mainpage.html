@@ -20,27 +20,21 @@
 
 <body>
 
-<nav class="navbar fixed-top navbar-expand-lg navbar-light" style="background-color: #d4d4d4;">
+<nav class="navbar navbar-expand-md fixed-top navbar-light" style="background-color: #d4d4d4;">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">News Aggregator</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav navbar-nav">
+        <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
+            <a class="navbar-brand" href="#">News Aggregator</a>
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Features</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Pricing</a>
-                </li>
             </ul>
-            <ul class="nav navbar-nav d-flex">
-
+        </div>
+        <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+            <ul class="navbar-nav ms-auto">
                 <li sec:authorize = "isAnonymous()" class="nav-item">
                     <a class="nav-link active" aria-current="page" href="/auth/login">Login</a>
                 </li>
-
                 <li sec:authorize = "isAuthenticated()" class="nav-item">
                     <a class="nav-link active" aria-current="page" >
 
@@ -65,30 +59,37 @@
             <tr>
 
                 <th scope="col">News</th>
-                <th scope="col">Link</th>
-                <th scope="col">Date</th>
+                <th scope="col" width="200">Date</th>
                 <th scope="col">Image</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="content : ${newsList}">
 
-                <td th:text="${content.getTitle()}" align="left"></td>
                 <td>
-                    <a th:href="'https://meduza.io/' + ${content.getUrl()}" class="link-warning">Link</a>
+                    <a th:href="'https://meduza.io/' + ${content.getUrl()}" th:text="${content.getTitle()}"
+                       align="left" class="link-warning"></a>
                 </td>
-                <td th:text="${content.getPubDate()}"></td>
+                <td th:text="${#temporals.format(content.getPubDate(), 'dd-MM-yyyy')}"></td>
                 <td>
-                    <img th:src="@{${content.getShareImageUrl()}}" class="img-thumbnail"/>
+                    <img th:if="${content.getShareImageUrl()} != null"
+                         th:src="@{${content.getShareImageUrl()}}" class="img-thumbnail"/>
                 </td>
             </tr>
 
             </tbody>
         </table>
+        <form action="#" data-th-action="@{/button}" method="post" >
+            <a th:if="${(#httpServletRequest.getParameter('page') != '0') &&
+                (#httpServletRequest.getParameter('page') != null)}">
+                <button type="submit" class="btn btn-secondary" name="previous" value="previous">previous</button>
+            </a>
+            <button type="submit" class="btn btn-secondary" name="next" value="next">next</button>
+        </form>
 
 
 
-        <a class="btn btn-dark" href="/auth/logout" role="button">Logout</a>
+        <!-- <a class="btn btn-dark" href="/auth/logout" role="button">Logout</a> -->
     </div>
 
 </main>

@@ -21,6 +21,6 @@ public class Content {
     @JsonProperty("share_image_url")
     public String shareImageUrl;
     @JsonProperty("pub_date")
-    //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    public String pubDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    public LocalDate pubDate;
 }

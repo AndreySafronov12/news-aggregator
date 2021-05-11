@@ -1,72 +1,63 @@
 package com.news.aggregator.controller;
 
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.news.aggregator.model.Content;
-import com.news.aggregator.model.MeduzaNews;
-import org.springframework.http.MediaType;
+import com.news.aggregator.model.ContentList;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Controller
 public class MainController {
 
-    private final String url = "https://meduza.io/api/v3/search?chrono=news&locale=ru&page=0&per_page=24";
-    private List<Content> contentList = new ArrayList<>();
+    private final String url = "http://localhost:8080/news";
+    private final AtomicInteger atomicInteger;
 
+    public MainController(AtomicInteger atomicInteger) {
+        this.atomicInteger = atomicInteger;
+    }
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String getMainPage(ModelMap modelMap) throws JsonProcessingException {
+    @GetMapping("/")
+    public String getMainPage(@RequestParam(value = "page", required = false, defaultValue = "0") String page, ModelMap modelMap) {
+
+        atomicInteger.set(Integer.parseInt(page));
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(url)
+                .append("?page=")
+                .append(page);
+
+        String url = stringBuilder.toString();
 
         WebClient webClient = WebClient.create();
-        String responseJson = webClient.get()
+        ContentList responseJson = webClient.get()
                 .uri(url)
                 .exchange()
                 .block()
-                .bodyToMono(String.class)
+                .bodyToMono(ContentList.class)
                 .block();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JSR310Module());
-        MeduzaNews meduzaNews = objectMapper.readValue(responseJson, MeduzaNews.class);
-
-        for (Map.Entry<String, Map<Object, Object>> entry: meduzaNews.getDocuments().entrySet()) {
-            Map<Object, Object> map = entry.getValue();
-            Content content = new Content();
-            for (Map.Entry<Object, Object> obj:  map.entrySet()) {
-                //String text = (String) obj.getValue();
-                switch ((String) obj.getKey()) {
-                    case "url": content.setUrl((String) obj.getValue());
-                        break;
-                    case "title": content.setTitle((String) obj.getValue());
-                        break;
-                    case "share_image_url": content.setShareImageUrl((String) obj.getValue());
-                        break;
-
-                    case "pub_date": content.setPubDate((String) obj.getValue());
-                        break;
-                        
-                }
-
-
-            }
-            contentList.add(content);
-        }
-
-        //System.out.println(contentList);
-        //modelMap.addAttribute("content", content);
-        modelMap.addAttribute("newsList", contentList);
+        List<Content> contentList = responseJson.getList();
+        modelMap.addAttribute("newsList",contentList);
 
         return "mainpage";
+    }
+
+    @PostMapping("/button")
+    public String page(@ModelAttribute(name = "next") String nextButton,
+                       @ModelAttribute(name = "previous") String previousButton) {
+        if (nextButton.equals("next")) {
+            atomicInteger.incrementAndGet();
+            return "redirect:/?page=" + atomicInteger.get();
+        }
+        else {
+            atomicInteger.decrementAndGet();
+            return "redirect:/?page=" + atomicInteger.get();
+        }
     }
 
 }
