@@ -20,9 +20,12 @@
 
 <body>
 
-<nav class="navbar navbar-expand-md fixed-top navbar-light" style="background-color: #d4d4d4;">
+<nav class="navbar navbar-expand-md fixed-top navbar-dark bg-secondary">
     <div class="container-fluid">
         <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
+            <a class="navbar-brand" href="#">
+                <img src="https://svgsilh.com/svg/311272-ffffff.svg" alt="" width="30" height="24">
+            </a>
             <a class="navbar-brand" href="#">News Aggregator</a>
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
@@ -52,15 +55,17 @@
 <main role="main" class="container">
 
     <div class="starter-template">
-        <h1>Daily News</h1>
+        <h1>Новости</h1>
 
         <table class="table">
             <thead>
             <tr>
+                <!--
 
                 <th scope="col">News</th>
                 <th scope="col" width="200">Date</th>
                 <th scope="col">Image</th>
+                -->
             </tr>
             </thead>
             <tbody>
@@ -68,13 +73,25 @@
 
                 <td>
                     <a th:href="'https://meduza.io/' + ${content.getUrl()}" th:text="${content.getTitle()}"
-                       align="left" class="link-warning"></a>
+                        class="text-decoration-none fw-bold" style="color: #3e3e3e; font-size: large"></a>
+                    <br>
+                    <span th:text="${#temporals.format(content.getPubDate(), 'dd-MM-yyyy')}"
+                    class="text-secondary"></span>
+                    <br>
+                    <img th:if="${content.getShareImageUrl()} != null"
+                         th:src="@{${content.getShareImageUrl()}}" class="img-thumbnail w-50"
+                         />
+
                 </td>
-                <td th:text="${#temporals.format(content.getPubDate(), 'dd-MM-yyyy')}"></td>
+                <!--
+                <td th:text="${#temporals.format(content.getPubDate(), 'dd-MM-yyyy')}"
+                    class="text-secondary"></td>
+
                 <td>
                     <img th:if="${content.getShareImageUrl()} != null"
                          th:src="@{${content.getShareImageUrl()}}" class="img-thumbnail"/>
                 </td>
+                -->
             </tr>
 
             </tbody>

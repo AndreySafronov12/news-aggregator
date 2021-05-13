@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Controller
 public class MainController {
 
-    private final String url = "http://localhost:8080/news";
+    private final String url = "http://localhost:8090/news";
     private final AtomicInteger atomicInteger;
 
     public MainController(AtomicInteger atomicInteger) {

@@ -52,6 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .username("andrey")
                         .password(passwordEncoder().encode("123"))
                         .authorities(Role.ADMIN.getAuthorities())
+                        .roles("ADMIN")
                         .build(),
 
                 User.builder()
