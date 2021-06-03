@@ -31,6 +31,9 @@
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
+                <li sec:authorize="hasAuthority('admin:read')" class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/admin">Admin page</a>
+                </li>
             </ul>
         </div>
         <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">

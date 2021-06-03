@@ -23,7 +23,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //.antMatchers("/").hasAnyAuthority("user:write")
                 .antMatchers("/").permitAll()
                 .antMatchers("/auth/login/**").anonymous()
-                .antMatchers("/admin/**").hasAnyRole("ADMIN")
+                .antMatchers("/admin/**").hasAnyAuthority("admin:read")
                 .and()
                 .formLogin()
                 .loginPage("/auth/login")
@@ -52,7 +52,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .username("andrey")
                         .password(passwordEncoder().encode("123"))
                         .authorities(Role.ADMIN.getAuthorities())
-                        .roles("ADMIN")
                         .build(),
 
                 User.builder()
