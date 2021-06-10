@@ -2,6 +2,7 @@ package com.news.aggregator.controller;
 
 import com.news.aggregator.model.Content;
 import com.news.aggregator.model.ContentList;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +15,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Controller
 public class MainController {
+    @Value("${news.content.url}")
+    private String url;
 
-    private final String url = "http://localhost:8090/news";
     private final AtomicInteger atomicInteger;
 
     public MainController(AtomicInteger atomicInteger) {
@@ -24,27 +26,33 @@ public class MainController {
 
     @GetMapping("/")
     public String getMainPage(@RequestParam(value = "page", required = false, defaultValue = "0") String page, ModelMap modelMap) {
-
         atomicInteger.set(Integer.parseInt(page));
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(url)
+
+        String url = createUrl(this.url, page);
+
+        ContentList responseJson = getContentFromRestNewsApiController(url);
+        assert responseJson != null;
+        List<Content> contentList = responseJson.getList();
+        modelMap.addAttribute("newsList",contentList);
+
+        return "mainpage";
+    }
+
+    private String createUrl(String url, String page) {
+        return new StringBuilder()
+                .append(url)
                 .append("?page=")
-                .append(page);
+                .append(page).toString();
+    }
 
-        String url = stringBuilder.toString();
-
-        WebClient webClient = WebClient.create();
-        ContentList responseJson = webClient.get()
+    private ContentList getContentFromRestNewsApiController(String url) {
+        return WebClient.create()
+                .get()
                 .uri(url)
                 .exchange()
                 .block()
                 .bodyToMono(ContentList.class)
                 .block();
-
-        List<Content> contentList = responseJson.getList();
-        modelMap.addAttribute("newsList",contentList);
-
-        return "mainpage";
     }
 
     @PostMapping("/button")
@@ -59,5 +67,7 @@ public class MainController {
             return "redirect:/?page=" + atomicInteger.get();
         }
     }
+
+
 
 }
